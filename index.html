@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NON FIDARTI - Enigmi & Inganni</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #09090f;
+      --panel: #11111b;
+      --panel2: #181824;
+      --text: #f5f5f7;
+      --muted: #8e8e9e;
+      --accent: #7c5cff;
+      --danger: #ff4567;
+      --success: #35df8a;
+      --yellow: #ffd84d;
+      --empty-border: #8e8e9e;
+      --text-color: #f5f5f7;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 50% 0%, #21164d 0%, transparent 40%),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    .app {
+      width: min(900px, 94vw);
+      min-height: 650px;
+      position: relative;
+    }
+
+    /* Pulsante Esci / Torna all'Hub posizionato sul contenitore .app */
+    .exit-button {
+      position: absolute;
+      top: -45px;
+      left: 0;
+      font-size: 2rem;
+      line-height: 1;
+      color: var(--empty-border);
+      text-decoration: none;
+      z-index: 100;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      font-family: Arial, sans-serif;
+    }
+
+    .exit-button:hover {
+      color: var(--text-color);
+      transform: scale(1.1);
+    }
+
+    .menu-btn {
+      background: #334155 !important;
+      margin-top: 10px !important;
+    }
+
+    .screen {
+      display: none;
+      min-height: 650px;
+      animation: fadeIn .35s ease;
+      position: relative;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    #home {
+      align-items: center;
+      justify-content: center;
+    }
+
+    .home-box {
+      width: 100%;
+      text-align: center;
+      padding: 50px 25px;
+    }
+
+    .warning {
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 4px;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+
+    .logo {
+      font-size: clamp(55px, 12vw, 105px);
+      line-height: .9;
+      font-weight: 1000;
+      letter-spacing: -6px;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 30px rgba(124, 92, 255, .25),
+        0 5px 0 #30215f;
+      margin-bottom: 25px;
+    }
+
+    .subtitle {
+      max-width: 580px;
+      margin: 0 auto 40px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .main-button {
+      border: 0;
+      padding: 18px 50px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #7c5cff, #a76cff);
+      color: white;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 12px 35px rgba(124, 92, 255, .25);
+      transition: .2s;
+    }
+
+    .main-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 45px rgba(124, 92, 255, .4);
+    }
+
+    .rules {
+      margin: 40px auto 0;
+      max-width: 600px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .rule {
+      background: rgba(255,255,255,.035);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px;
+      padding: 15px 10px;
+      color: #aaaabb;
+      font-size: 13px;
+    }
+
+    .rule strong {
+      display: block;
+      color: white;
+      margin-bottom: 5px;
+    }
+
+    #game {
+      flex-direction: column;
+      padding-top: 15px;
+    }
+
+    .topbar {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 900;
+      margin-top: 3px;
+    }
+
+    .lives {
+      color: #ff5474;
+      letter-spacing: 3px;
+    }
+
+    .game-panel {
+      flex: 1;
+      width: 100%;
+      min-height: 550px;
+      background: linear-gradient(
+        145deg,
+        rgba(255,255,255,.045),
+        rgba(255,255,255,.015)
+      );
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 25px;
+      padding: 35px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-panel::before {
+      content: "";
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      background: rgba(124,92,255,.08);
+      filter: blur(80px);
+      top: -150px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    .level {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 3px;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+
+    .instruction {
+      max-width: 700px;
+      min-height: 75px;
+      text-align: center;
+      font-size: clamp(20px, 4vw, 34px);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .sub-instruction {
+      min-height: 25px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .timer-container {
+      width: min(500px, 90%);
+      height: 7px;
+      background: rgba(255,255,255,.07);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 35px;
+    }
+
+    .timer-bar {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #35df8a, #ffd84d, #ff4567);
+      transform-origin: left;
+      transition: transform .05s linear;
+    }
+
+    .interaction-area {
+      width: min(650px, 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 3;
+      min-height: 180px;
+    }
+
+    .choices {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .choice {
+      min-height: 115px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      transition: transform .12s, filter .12s, border .12s, background .12s;
+      position: relative;
+    }
+
+    .choice:hover {
+      transform: scale(1.04);
+      filter: brightness(1.15);
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .choice:active {
+      transform: scale(.96);
+    }
+
+    .choice-text {
+      font-size: 22px;
+      font-weight: 900;
+      color: white;
+      text-align: center;
+    }
+
+    .input-box-wrapper {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .game-input {
+      flex: 1;
+      padding: 15px 20px;
+      border-radius: 15px;
+      border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.3);
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      outline: none;
+      text-align: center;
+      transition: border .2s;
+    }
+
+    .game-input:focus {
+      border-color: var(--accent);
+    }
+
+    .input-submit {
+      padding: 0 25px;
+      border: 0;
+      border-radius: 15px;
+      background: var(--accent);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .message {
+      min-height: 30px;
+      margin-top: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .success { color: var(--success); }
+    .failure { color: var(--danger); }
+
+    #gameover {
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gameover-box {
+      text-align: center;
+      width: 100%;
+    }
+
+    .gameover-title {
+      font-size: clamp(50px, 10vw, 85px);
+      font-weight: 1000;
+      letter-spacing: -4px;
+      margin-bottom: 10px;
+    }
+
+    .gameover-sub {
+      color: var(--muted);
+      margin-bottom: 35px;
+    }
+
+    .final-stats {
+      max-width: 500px;
+      margin: 0 auto 30px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .final-stat {
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 15px;
+      padding: 20px;
+    }
+
+    .final-stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .final-stat strong {
+      font-size: 28px;
+    }
+
+    .new-record {
+      color: var(--yellow);
+      font-weight: 900;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      60% { transform: translateX(-7px); }
+      80% { transform: translateX(7px); }
+    }
+
+    @keyframes pop {
+      0% { transform: scale(.85); opacity: 0; }
+      70% { transform: scale(1.05); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes screenGlitch {
+      0% { transform: translate(0); filter: none; }
+      20% { transform: translate(-5px, 5px); filter: hue-rotate(90deg) contrast(200%); }
+      40% { transform: translate(-5px, -5px); filter: invert(80%); }
+      60% { transform: translate(5px, 5px); filter: none; }
+      80% { transform: translate(5px, -5px); filter: hue-rotate(-90deg); }
+      100% { transform: translate(0); filter: none; }
+    }
+
+    .shake { animation: shake .35s ease; }
+    .pop { animation: pop .25s ease; }
+    .glitch-active { animation: screenGlitch 0.3s ease; }
+
+    @media (max-width: 650px) {
+      .app { width: 100vw; min-height: 100vh; padding: 15px; }
+      .exit-button { top: 15px; left: 15px; }
+      .screen { min-height: 100vh; }
+      .game-panel { padding: 25px 15px; border-radius: 20px; }
+      .rules { grid-template-columns: 1fr; max-width: 300px; }
+      .choices { grid-template-columns: 1fr; max-width: 350px; }
+      .choice { min-height: 80px; }
+      .topbar { gap: 6px; }
+      .stat { padding: 9px 5px; }
+      .stat-value { font-size: 18px; }
+      .instruction { font-size: 20px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <!-- Pulsante Esci unico posizionato nel wrapper .app -->
+    <a href="#" onclick="window.close(); return false;" class="exit-button" title="Torna all'Hub">×</a>
+
+    <!-- HOME -->
+    <section id="home" class="screen active">
+      <div class="home-box">
+        <div class="warning">⚠ NON FIDARTI</div>
+        <h1 class="logo">NON<br>FIDARTI</h1>
+        <p class="subtitle">
+          Enigmi mentali, trabocchetti logici, test di memoria.<br>
+          Il gioco mente. Preparati a dubitare di tutto.
+        </p>
+        <button class="main-button" id="startButton">INIZIA</button>
+        <div class="rules">
+          <div class="rule"><strong>🧠 PENSA</strong> Rompicapi e logica.</div>
+          <div class="rule"><strong>⚡ VELOCE</strong> Timer implacabile.</div>
+          <div class="rule"><strong>😈 INGANNEVOLE</strong> Mai fidarsi delle apparenze.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GAME -->
+    <section id="game" class="screen">
+      <div class="topbar">
+        <div class="stat">
+          <div class="stat-label">Punteggio</div>
+          <div class="stat-value" id="score">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Round</div>
+          <div class="stat-value" id="round">1</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Vite</div>
+          <div class="stat-value lives" id="lives">❤️❤️❤️</div>
+        </div>
+      </div>
+
+      <div class="game-panel" id="gamePanel">
+        <div class="level" id="level">LIVELLO 1</div>
+        <div class="instruction" id="instruction">...</div>
+        <div class="sub-instruction" id="subInstruction">...</div>
+        <div class="timer-container">
+          <div class="timer-bar" id="timerBar"></div>
+        </div>
+        
+        <div class="interaction-area" id="interactionArea"></div>
+
+        <div class="message" id="message"></div>
+      </div>
+    </section>
+
+    <!-- GAME OVER -->
+    <section id="gameover" class="screen">
+      <div class="gameover-box">
+        <div class="warning">FINE DEL GIOCO</div>
+        <h2 class="gameover-title">GAME OVER</h2>
+        <p class="gameover-sub">Ti sei fidato troppo.</p>
+        <div class="new-record" id="newRecord">🏆 NUOVO RECORD!</div>
+        <div class="final-stats">
+          <div class="final-stat"><span>Punteggio</span><strong id="finalScore">0</strong></div>
+          <div class="final-stat"><span>Round</span><strong id="finalRound">0</strong></div>
+          <div class="final-stat"><span>Combo</span><strong id="finalCombo">0</strong></div>
+          <div class="final-stat"><span>Record</span><strong id="highScore">0</strong></div>
+        </div>
+        <button class="main-button" id="restartButton">RIPROVA</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const homeScreen = document.getElementById("home");
+    const gameScreen = document.getElementById("game");
+    const gameOverScreen = document.getElementById("gameover");
+
+    const startButton = document.getElementById("startButton");
+    const restartButton = document.getElementById("restartButton");
+
+    const scoreElement = document.getElementById("score");
+    const roundElement = document.getElementById("round");
+    const livesElement = document.getElementById("lives");
+
+    const levelElement = document.getElementById("level");
+    const instructionElement = document.getElementById("instruction");
+    const subInstructionElement = document.getElementById("subInstruction");
+
+    const timerBar = document.getElementById("timerBar");
+    const interactionArea = document.getElementById("interactionArea");
+    const messageElement = document.getElementById("message");
+    const gamePanel = document.getElementById("gamePanel");
+
+    const finalScore = document.getElementById("finalScore");
+    const finalRound = document.getElementById("finalRound");
+    const finalCombo = document.getElementById("finalCombo");
+    const highScoreElement = document.getElementById("highScore");
+    const newRecordElement = document.getElementById("newRecord");
+
+    let score = 0, round = 0, lives = 3, combo = 0, maxCombo = 0;
+    let currentChallenge = null;
+    let timer = null, timerStart = 0, timerDuration = 5000;
+    let gameRunning = false;
+    let highScore = Number(localStorage.getItem("nonFidartiHighScore") || 0);
+    let lastChallengeType = "";
+
+    function random(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function showScreen(screen) {
+      homeScreen.classList.remove("active");
+      gameScreen.classList.remove("active");
+      gameOverScreen.classList.remove("active");
+      screen.classList.add("active");
+    }
+
+    function updateUI() {
+      scoreElement.textContent = score;
+      roundElement.textContent = round;
+      livesElement.textContent = "❤️".repeat(lives) + "🖤".repeat(3 - lives);
+      levelElement.textContent = `LIVELLO ${round}`;
+    }
+
+    function startGame() {
+      score = 0; round = 0; lives = 3; combo = 0; maxCombo = 0;
+      lastChallengeType = "";
+      gameRunning = true;
+      showScreen(gameScreen);
+      nextRound();
+    }
+
+    function nextRound() {
+      if (!gameRunning) return;
+      clearInterval(timer);
+      round++;
+      updateUI();
+      messageElement.textContent = "";
+      messageElement.className = "message";
+
+      const challenge = chooseChallenge();
+      currentChallenge = challenge;
+      renderChallenge(challenge);
+      
+      if (!challenge.noTimer) {
+        startTimer();
+      }
+    }
+
+    function chooseChallenge() {
+      const types = ["choices", "inverseChoice", "inputPuzzle", "memoryPuzzle", "patiencePuzzle", "logicParadox", "fugitiveButton"];
+      let availableTypes = round <= 2 ? ["choices", "inverseChoice"] : types;
+      
+      let filteredTypes = availableTypes.filter(t => t !== lastChallengeType);
+      if (filteredTypes.length === 0) filteredTypes = availableTypes;
+      
+      const chosenType = random(filteredTypes);
+      lastChallengeType = chosenType;
+
+      switch(chosenType) {
+        case "choices": {
+          const pack = random([
+            { items: [{l:"Rosso", v:"rosso", bg:"#ef4058"}, {l:"Verde", v:"verde", bg:"#2ddc86"}, {l:"Blu", v:"blu", bg:"#397bff"}] },
+            { items: [{l:"12", v:"12", bg:"#397bff"}, {l:"45", v:"45", bg:"#ef4058"}, {l:"7", v:"7", bg:"#2ddc86"}] },
+            { items: [{l:"Gatto 🐱", v:"gatto", bg:"#ff853d"}, {l:"Auto 🚗", v:"auto", bg:"#397bff"}, {l:"Mela 🍎", v:"mela", bg:"#ef4058"}] }
+          ]);
+          const target = random(pack.items);
+          return {
+            type: "choices",
+            instruction: `CLICCA SUL ${target.l.toUpperCase()}`,
+            sub: "Missione pulita. O forse no?",
+            items: pack.items,
+            answer: String(target.v)
+          };
+        }
+        case "inverseChoice": {
+          const pack = [
+            {l:"Rosso", v:"rosso", bg:"#ef4058"}, 
+            {l:"Verde", v:"verde", bg:"#2ddc86"}, 
+            {l:"Blu", v:"blu", bg:"#397bff"}
+          ];
+          const target = random(pack);
+          const validOthers = pack.filter(i => i.v !== target.v).map(i => String(i.v));
+          return {
+            type: "choices",
+            instruction: `NON CLICCARE SUL ${target.l.toUpperCase()}`,
+            sub: "Scegli qualsiasi altra opzione.",
+            items: pack,
+            answer: validOthers
+          };
+        }
+        case "inputPuzzle": {
+          const words = ["CASA", "SOLE", "LIBRO", "MARE", "LUNA", "GATTO"];
+          const targetWord = random(words);
+          const reverseRule = Math.random() > 0.5;
+          const expected = reverseRule ? targetWord.split("").reverse().join("") : targetWord.toLowerCase();
+          return {
+            type: "input",
+            instruction: `SCRIVI LA PAROLA: "${targetWord}"`,
+            sub: reverseRule ? "⚠ Regola nascosta: scrivila AL CONTRARIO!" : "⚠ Regola nascosta: scrivila in MINUSCOLO!",
+            expectedAnswer: expected
+          };
+        }
+        case "memoryPuzzle": {
+          const pack = [
+            {l:"Stella ⭐", v:"stella", bg:"#ffd447"},
+            {l:"Cuore ❤️", v:"cuore", bg:"#ef4058"},
+            {l:"Fulmine ⚡", v:"fulmine", bg:"#397bff"}
+          ];
+          const target = random(pack);
+          return {
+            type: "memory",
+            instruction: "MEMORIZZA LA POSIZIONE...",
+            sub: `Trova dov'era: ${target.l}`,
+            items: pack,
+            answer: String(target.v)
+          };
+        }
+        case "patiencePuzzle": {
+          return {
+            type: "patience",
+            instruction: "NON TOCCARE NULLA!",
+            sub: "Resisti finché il tempo non scade da solo...",
+            noTimer: false
+          };
+        }
+        case "logicParadox": {
+          const paradoxes = [
+            { q: "Se la risposta è Falsa, clicca Vero.", ans: "vero" },
+            { q: "Questo gioco dice sempre la verità?", ans: "falso" },
+            { q: "Qual è il numero minore tra 10, 5 e 20?", ans: "5" }
+          ];
+          const p = random(paradoxes);
+          return {
+            type: "choices",
+            instruction: p.q,
+            sub: "Rifletti bene prima di agire.",
+            items: [
+              {l: "VERO", v: "vero", bg:"#2ddc86"},
+              {l: "FALSO", v: "falso", bg:"#ef4058"},
+              {l: "5", v: "5", bg:"#397bff"}
+            ],
+            answer: String(p.ans)
+          };
+        }
+        case "fugitiveButton": {
+          const variant = Math.floor(Math.random() * 3);
+          if (variant === 2) {
+            return {
+              type: "fugitiveTrap",
+              instruction: "NON CLICCARE IL PULSANTE SOTTOSTANTE!",
+              sub: "Ignoralo e lascia scadere il tempo...",
+              noTimer: false
+            };
+          }
+          return {
+            type: "fugitive",
+            escapeCount: variant + 1,
+            instruction: "ACCHIAPPA IL PULSANTE!",
+            sub: variant === 0 ? "Scapperà 1 volta..." : "Scapperà 2 volte...",
+            noTimer: false
+          };
+        }
+      }
+    }
+
+    function renderChallenge(challenge) {
+      interactionArea.onclick = null;
+      instructionElement.textContent = challenge.instruction;
+      subInstructionElement.textContent = challenge.sub;
+      interactionArea.innerHTML = "";
+      interactionArea.style.position = "relative";
+
+      if (challenge.type === "choices") {
+        const grid = document.createElement("div");
+        grid.className = "choices";
+        challenge.items.forEach(item => {
+          const btn = document.createElement("button");
+          btn.className = "choice";
+          btn.style.background = item.bg;
+          btn.innerHTML = `<span class="choice-text">${item.l}</span>`;
+          btn.addEventListener("click", () => handleChoiceAnswer(String(item.v)));
+          grid.appendChild(btn);
+        });
+        interactionArea.appendChild(grid);
+      } 
+      else if (challenge.type === "input") {
+        const wrap = document.createElement("div");
+        wrap.className = "input-box-wrapper";
+        
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "game-input";
+        input.placeholder = "Scrivi qui...";
+
+        const subBtn = document.createElement("button");
+        subBtn.className = "input-submit";
+        subBtn.textContent = "INVIA";
+
+        const submitAction = () => {
+          if (!gameRunning) return;
+          clearInterval(timer);
+          if (input.value.trim() === challenge.expectedAnswer) {
+            handleCorrect();
+          } else {
+            handleWrong();
+          }
+        };
+
+        subBtn.addEventListener("click", submitAction);
+        input.addEventListener("keydown", (e) => { if (e.key === "Enter") submitAction(); });
+
+        wrap.appendChild(input);
+        wrap.appendChild(subBtn);
+        interactionArea.appendChild(wrap);
+        setTimeout(() => input.focus(), 50);
+      }
+      else if (challenge.type === "memory") {
+        const grid = document.createElement("div");
+        grid.className = "choices";
+        
+        challenge.items.forEach(item => {
+          const btn = document.createElement("button");
+          btn.className = "choice";
+          btn.style.background = item.bg;
+          btn.dataset.value = item.v;
+          btn.innerHTML = `<span class="choice-text">${item.l}</span>`;
+          grid.appendChild(btn);
+        });
+        interactionArea.appendChild(grid);
+
+        subInstructionElement.textContent = "Memorizza...";
+        
+        setTimeout(() => {
+          if (!gameRunning) return;
+          subInstructionElement.textContent = challenge.sub;
+          
+          const buttons = grid.querySelectorAll(".choice");
+          buttons.forEach((btn) => {
+            btn.style.background = "#181824";
+            btn.innerHTML = `<span class="choice-text" style="color:var(--muted);">?</span>`;
+            btn.onclick = () => handleChoiceAnswer(String(btn.dataset.value));
+          });
+
+        }, 1400);
+      }
+      else if (challenge.type === "patience") {
+        const info = document.createElement("div");
+        info.style.cssText = "font-size: 35px; font-weight: bold; color: var(--yellow);";
+        info.textContent = "🧘‍♂️ FERMO!";
+        interactionArea.appendChild(info);
+
+        interactionArea.onclick = () => {
+          if (gameRunning) {
+            clearInterval(timer);
+            handleWrong();
+          }
+        };
+      }
+      else if (challenge.type === "fugitive" || challenge.type === "fugitiveTrap") {
+        const btn = document.createElement("button");
+        btn.className = "choice";
+        btn.style.position = "absolute";
+        btn.style.background = challenge.type === "fugitiveTrap" ? "#ff4567" : "#7c5cff";
+        btn.style.minWidth = "150px";
+        btn.style.minHeight = "70px";
+        
+        let labelText = "ACCHIAPPAMI";
+        if (challenge.type === "fugitiveTrap") {
+          labelText = "NON CLICCARE";
+        } else if (challenge.escapeCount === 2) {
+          labelText = "PRENDIMI (2)";
+        }
+        btn.innerHTML = `<span class="choice-text" style="font-size:16px;">${labelText}</span>`;
+
+        let escapesLeft = challenge.escapeCount || 0;
+
+        const moveButton = (e) => {
+          if (escapesLeft > 0) {
+            e.preventDefault();
+            escapesLeft--;
+            if (escapesLeft === 1) {
+              btn.innerHTML = `<span class="choice-text" style="font-size:16px;">PRENDIMI (1)</span>`;
+            }
+            const maxX = Math.max(10, interactionArea.clientWidth - 160);
+            const maxY = Math.max(10, interactionArea.clientHeight - 80);
+            btn.style.left = `${Math.random() * maxX}px`;
+            btn.style.top = `${Math.random() * maxY}px`;
+          }
+        };
+
+        btn.style.left = "32%";
+        btn.style.top = "20px";
+
+        btn.addEventListener("mouseenter", moveButton);
+        btn.addEventListener("touchstart", moveButton, { passive: false });
+        
+        btn.addEventListener("click", (e) => {
+          if (!gameRunning) return;
+          if (escapesLeft > 0) {
+            moveButton(e);
+            return;
+          }
+          clearInterval(timer);
+          if (challenge.type === "fugitiveTrap") {
+            handleWrong();
+          } else {
+            handleCorrect();
+          }
+        });
+
+        interactionArea.style.minHeight = "200px";
+        interactionArea.appendChild(btn);
+      }
+
+      gamePanel.classList.remove("pop");
+      void gamePanel.offsetWidth;
+      gamePanel.classList.add("pop");
+    }
+
+    function handleChoiceAnswer(val) {
+      if (!gameRunning) return;
+      clearInterval(timer);
+
+      let correct = Array.isArray(currentChallenge.answer)
+        ? currentChallenge.answer.includes(val)
+        : currentChallenge.answer === val;
+
+      if (correct) {
+        handleCorrect();
+      } else {
+        handleWrong();
+      }
+    }
+
+    function handleCorrect() {
+      combo++;
+      if (combo > maxCombo) maxCombo = combo;
+      const points = 150 + (combo - 1) * 35;
+      score += points;
+
+      messageElement.textContent = `✓ CORRETTO  +${points}   🔥 COMBO ×${combo}`;
+      messageElement.className = "message success";
+      updateUI();
+
+      setTimeout(() => { if (gameRunning) nextRound(); }, 650);
+    }
+
+    function handleWrong() {
+      lives--;
+      combo = 0;
+      messageElement.textContent = "✕ SBAGLIATO";
+      messageElement.className = "message failure";
+
+      gamePanel.classList.remove("shake", "glitch-active");
+      void gamePanel.offsetWidth;
+      gamePanel.classList.add("shake", "glitch-active");
+      updateUI();
+
+      if (lives <= 0) {
+        setTimeout(() => { endGame(); }, 500);
+      } else {
+        setTimeout(() => { if (gameRunning) nextRound(); }, 800);
+      }
+    }
+
+    function startTimer() {
+      timerDuration = Math.max(2000, 6000 - round * 150);
+      timerStart = performance.now();
+      timerBar.style.transform = "scaleX(1)";
+
+      timer = setInterval(() => {
+        const elapsed = performance.now() - timerStart;
+        const progress = 1 - elapsed / timerDuration;
+        timerBar.style.transform = `scaleX(${Math.max(0, progress)})`;
+
+        if (elapsed >= timerDuration) {
+          clearInterval(timer);
+          if (currentChallenge.type === "patience" || currentChallenge.type === "fugitiveTrap") {
+            handleCorrect();
+          } else {
+            handleTimeout();
+          }
+        }
+      }, 20);
+    }
+
+    function handleTimeout() {
+      if (!gameRunning) return;
+      lives--;
+      combo = 0;
+      messageElement.textContent = "⏱ TEMPO SCADUTO";
+      messageElement.className = "message failure";
+      
+      gamePanel.classList.remove("shake", "glitch-active");
+      void gamePanel.offsetWidth;
+      gamePanel.classList.add("shake", "glitch-active");
+      updateUI();
+
+      if (lives <= 0) {
+        setTimeout(() => { endGame(); }, 500);
+      } else {
+        setTimeout(() => { nextRound(); }, 700);
+      }
+    }
+
+    function endGame() {
+      gameRunning = false;
+      clearInterval(timer);
+      interactionArea.onclick = null;
+
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem("nonFidartiHighScore", highScore);
+        newRecordElement.style.display = "block";
+      } else {
+        newRecordElement.style.display = "none";
+      }
+
+      finalScore.textContent = score;
+      finalRound.textContent = round;
+      finalCombo.textContent = maxCombo;
+      highScoreElement.textContent = highScore;
+      showScreen(gameOverScreen);
+    }
+
+    startButton.addEventListener("click", startGame);
+    restartButton.addEventListener("click", startGame);
+
+    highScoreElement.textContent = highScore;
+  </script>
+</body>
+</html>
