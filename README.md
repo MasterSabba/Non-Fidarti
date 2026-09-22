@@ -2,7 +2,7 @@
 
 **NON FIDARTI** è un minigioco arcade web-based veloce, ironico e pensato per ingannarti continuamente. Rompicapi mentali, trabocchetti logici, timer implacabili e regole nascoste: qui la regola principale è che **non puoi fidarti di nulla**.
 
-🌐 **Giocalo subito online:** [Link alla tua GitHub Pages]
+🌐 **Giocalo subito online:**
 
 ---
 
