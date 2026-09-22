@@ -1014,6 +1014,28 @@
     restartButton.addEventListener("click", startGame);
 
     highScoreElement.textContent = highScore;
+
+    // Funzione da richiamare nel gioco quando l'utente vince o completa la sfida
+function inviaVittoriaAlHub(puntiBonus = 50) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const playerName = urlParams.get('player');
+    
+    if (playerName) {
+        // Se il gioco è aperto come finestra o iframe dipendente dall'Hub
+        if (window.opener) {
+            window.opener.postMessage({
+                gameKey: 'non-fidarti', // Sostituire con l'identificativo corretto del gioco (es. 'master-wordle', 'master-sudoku', ecc.)
+                points: puntiBonus
+            }, '*');
+        } else if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+                gameKey: 'non-fidarti', 
+                points: puntiBonus
+            }, '*');
+        }
+    }
+}
+
   </script>
 </body>
 </html>
