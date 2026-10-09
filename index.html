@@ -991,49 +991,43 @@
     }
 
     function endGame() {
-      gameRunning = false;
-      clearInterval(timer);
-      interactionArea.onclick = null;
+  gameRunning = false;
+  clearInterval(timer);
+  interactionArea.onclick = null;
 
-      if (score > highScore) {
-        highScore = score;
-        localStorage.setItem("nonFidartiHighScore", highScore);
-        newRecordElement.style.display = "block";
-      } else {
-        newRecordElement.style.display = "none";
-      }
+  // Invia i punti all'Hub se il giocatore ha fatto almeno 1 punto
+  if (score > 0) {
+    inviaVittoriaAlHub(50);
+  }
 
-      finalScore.textContent = score;
-      finalRound.textContent = round;
-      finalCombo.textContent = maxCombo;
-      highScoreElement.textContent = highScore;
-      showScreen(gameOverScreen);
-    }
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem("nonFidartiHighScore", highScore);
+    newRecordElement.style.display = "block";
+  } else {
+    newRecordElement.style.display = "none";
+  }
+
+  finalScore.textContent = score;
+  finalRound.textContent = round;
+  finalCombo.textContent = maxCombo;
+  highScoreElement.textContent = highScore;
+  showScreen(gameOverScreen);
+}
 
     startButton.addEventListener("click", startGame);
     restartButton.addEventListener("click", startGame);
 
     highScoreElement.textContent = highScore;
 
-    // Funzione da richiamare nel gioco quando l'utente vince o completa la sfida
 function inviaVittoriaAlHub(puntiBonus = 50) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const playerName = urlParams.get('player');
-    
-    if (playerName) {
-        // Se il gioco è aperto come finestra o iframe dipendente dall'Hub
-        if (window.opener) {
-            window.opener.postMessage({
-                gameKey: 'non-fidarti', // Sostituire con l'identificativo corretto del gioco (es. 'master-wordle', 'master-sudoku', ecc.)
-                points: puntiBonus
-            }, '*');
-        } else if (window.parent && window.parent !== window) {
-            window.parent.postMessage({
-                gameKey: 'non-fidarti', 
-                points: puntiBonus
-            }, '*');
-        }
-    }
+  const target = window.opener || (window.parent !== window ? window.parent : null);
+  if (target) {
+    target.postMessage({
+      gameKey: 'non-fidarti',
+      points: puntiBonus
+    }, '*');
+  }
 }
 
   </script>
